@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14121a">
+  <title>Dadu Petualang — Roller Dadu D&amp;D Multiplayer</title>
+  <meta name="description" content="Roller dadu D&D gratis dengan mode multiplayer. Buat room, bagikan kode, lempar dadu bareng party-mu.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpolygon points='32,3 58,18 58,46 32,61 6,46 6,18' fill='%23d9b45f'/%3E%3Ctext x='32' y='41' font-size='24' font-family='Georgia,serif' font-weight='700' text-anchor='middle' fill='%2314121a'%3E20%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ========== LANDING ========== -->
+<main id="landing" class="screen">
+  <header class="brand">
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+      <polygon points="32,3 58,18 58,46 32,61 6,46 6,18" />
+      <text x="32" y="41" text-anchor="middle">20</text>
+    </svg>
+    <h1>Dadu Petualang</h1>
+    <p>Roller dadu D&amp;D untuk meja virtualmu. Lempar solo, atau buat room dan ajak party.</p>
+  </header>
+
+  <section class="card">
+    <label class="field">
+      <span>Nama karakter</span>
+      <input id="nameInput" maxlength="20" placeholder="mis. Thorin" autocomplete="off">
+    </label>
+
+    <div class="field">
+      <span>Warna</span>
+      <div id="swatches" class="swatches" role="radiogroup" aria-label="Pilih warna"></div>
+    </div>
+
+    <div class="btn-row">
+      <button id="soloBtn" class="btn">Main Solo</button>
+      <button id="hostBtn" class="btn primary">Buat Room (jadi GM)</button>
+    </div>
+
+    <div class="divider"><span>atau gabung room</span></div>
+
+    <div class="join-row">
+      <input id="codeInput" maxlength="5" placeholder="KODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Kode room">
+      <button id="joinBtn" class="btn">Gabung</button>
+    </div>
+    <p id="landingMsg" class="msg" role="status"></p>
+  </section>
+
+  <p class="foot">Multiplayer langsung antar-browser (peer-to-peer), tanpa akun dan tanpa server.</p>
+</main>
+
+<!-- ========== GAME ========== -->
+<div id="game" class="screen" hidden>
+  <header class="topbar">
+    <div class="room">
+      <span id="statusDot" class="dot"></span>
+      <div class="room-text">
+        <strong id="statusTitle">Solo</strong>
+        <small id="statusSub"></small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="copyCodeBtn" class="btn small" hidden>Salin link</button>
+      <button id="reconnectBtn" class="btn small primary" hidden>Gabung ulang</button>
+      <button id="leaveBtn" class="btn small ghost">Keluar</button>
+    </div>
+  </header>
+
+  <div id="players" class="players" aria-label="Pemain"></div>
+
+  <div class="layout">
+    <section class="col-left">
+      <div id="stage" class="stage" aria-live="polite">
+        <div id="stageWho" class="stage-who">Belum ada lemparan</div>
+        <div id="stageNum" class="stage-num">–</div>
+        <div id="stageCrit" class="stage-crit" hidden></div>
+        <div id="stageDetail" class="stage-detail">Pilih dadu lalu tekan Lempar.</div>
+      </div>
+
+      <div class="card roller">
+        <div id="dicePad" class="dice-pad"></div>
+
+        <label class="field">
+          <span>Rumus <em>(bisa diketik langsung)</em></span>
+          <div class="formula-row">
+            <input id="formula" value="1d20" autocomplete="off" spellcheck="false" inputmode="text" aria-label="Rumus dadu">
+            <button id="modMinus" class="btn small" title="Modifier −1" aria-label="Modifier kurang satu">−1</button>
+            <button id="modPlus" class="btn small" title="Modifier +1" aria-label="Modifier tambah satu">+1</button>
+            <button id="resetBtn" class="btn small ghost" title="Kosongkan rumus">Reset</button>
+          </div>
+          <small id="formulaHint" class="hint"></small>
+        </label>
+
+        <div class="field">
+          <span>d20 dengan</span>
+          <div id="advSeg" class="seg" role="radiogroup" aria-label="Advantage atau disadvantage">
+            <button type="button" data-adv="" class="on" role="radio" aria-checked="true">Normal</button>
+            <button type="button" data-adv="adv" role="radio" aria-checked="false">Advantage</button>
+            <button type="button" data-adv="dis" role="radio" aria-checked="false">Disadvantage</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Label <em>(opsional)</em></span>
+          <input id="labelInput" maxlength="40" placeholder="mis. Serangan pedang" autocomplete="off">
+          <div id="presets" class="presets"></div>
+        </label>
+
+        <label id="secretRow" class="check" hidden>
+          <input type="checkbox" id="secretCheck">
+          <span id="secretText">Lempar rahasia</span>
+        </label>
+
+        <button id="rollBtn" class="btn roll">Lempar!</button>
+      </div>
+    </section>
+
+    <section class="col-right">
+      <div class="log-head">
+        <h2>Riwayat</h2>
+        <button id="clearBtn" class="btn small ghost" hidden>Hapus riwayat</button>
+      </div>
+      <ol id="log" class="log"></ol>
+      <p id="logEmpty" class="empty">Lemparan akan muncul di sini.</p>
+    </section>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- PeerJS (WebRTC) dari CDN, dengan cadangan jsDelivr -->
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>window.Peer || document.write('<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"><\/script>')</script>
+<script src="dice.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
